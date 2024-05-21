@@ -125,6 +125,9 @@ static bool Nuitka_FrameIsCompiled(_PyInterpreterFrame *frame) {
 static bool Nuitka_FrameIsIncomplete(_PyInterpreterFrame *frame) {
     bool r = _PyFrame_IsIncomplete(frame);
 
+    // Compiled frames are always complete.
+    assert(r || frame->frame_obj == NULL || Nuitka_Frame_CheckExact((PyObject *)frame->frame_obj) == false);
+
     return r;
 }
 
