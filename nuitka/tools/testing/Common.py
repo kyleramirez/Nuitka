@@ -804,7 +804,9 @@ Defaults to off.""",
         else:
             return SearchModeImmediate()
     elif mode == "resume":
-        return SearchModeResume(sys.modules["__main__"].__file__)
+        return SearchModeResume(sys.modules["__main__"].__file__, skip=False)
+    elif mode == "skip":
+        return SearchModeResume(sys.modules["__main__"].__file__, skip=True)
     elif mode == "only":
         if options.pattern:
             pattern = options.pattern.replace("/", os.path.sep)
