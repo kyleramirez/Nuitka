@@ -330,6 +330,9 @@ def buildNode(provider, node, source_ref, allow_none=False):
         # we got interrupted.
         optimization_logger.info("Interrupted at '%s'." % source_ref)
         raise
+    except SystemExit:
+        optimization_logger.warning("Problem at '%s'." % source_ref.getAsString())
+        raise
     except:
         optimization_logger.warning(
             "Problem at '%s' with %s." % (source_ref.getAsString(), ast.dump(node))
