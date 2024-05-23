@@ -18,7 +18,7 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <libgen.h>
-#if !defined(__wasi__)
+#if !defined(__EMSCRIPTEN__)
 #include <pwd.h>
 #endif
 #include <stdlib.h>
@@ -169,7 +169,7 @@ int64_t getFileSize(FILE_HANDLE file_handle) {
 #if defined(__APPLE__)
 #include <copyfile.h>
 #else
-#if defined(__MSYS__) || defined(__HAIKU__) || defined(__wasi__)
+#if defined(__MSYS__) || defined(__HAIKU__) || defined(__EMSCRIPTEN__)
 static bool sendfile(int output_file, int input_file, off_t *bytesCopied, size_t count) {
     char buffer[32768];
 
@@ -517,7 +517,7 @@ static void resolveFileSymbolicLink(wchar_t *resolved_filename, wchar_t const *f
 
 static void resolveFileSymbolicLink(char *resolved_filename, char const *filename, size_t resolved_filename_size,
                                     bool resolve_symlinks) {
-#ifdef __wasi__
+#ifdef __EMSCRIPTEN__
     copyStringSafe(resolved_filename, filename, resolved_filename_size);
 #else
     if (resolve_symlinks) {
@@ -624,7 +624,7 @@ char const *getBinaryFilenameHostEncoded(bool resolve_symlinks) {
     // Resolve any symlinks we were invoked via
     resolveFileSymbolicLink(binary_filename_target, binary_filename_target, buffer_size, resolve_symlinks);
 
-#elif defined(__wasi__)
+#elif defined(__EMSCRIPTEN__)
     const char* wasi_filename = "program.wasm";
     strncpy(binary_filename_resolved, wasi_filename, MAXPATHLEN);
 #elif defined(__FreeBSD__) || defined(__OpenBSD__)
@@ -897,7 +897,7 @@ bool expandTemplatePath(char *target, char const *source, size_t buffer_size) {
                 char const *home_path = getenv("HOME");
 
                 if (home_path == NULL) {
-#ifdef __wasi__
+#ifdef __EMSCRIPTEN__
                     return false;
 #else
                     struct passwd *pw_data = getpwuid(getuid());

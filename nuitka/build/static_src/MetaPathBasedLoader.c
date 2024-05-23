@@ -721,8 +721,8 @@ static PyObject *callIntoExtensionModule(PyThreadState *tstate, char const *full
     // structure internals of 3.8 or higher.
     // spell-checker: ignore getdlopenflags,dlopenflags
 
-#ifdef __wasi__
-        const char *error = "dynamic libraries are not implemented in wasi";
+#ifdef __EMSCRIPTEN__
+        const char *error = "dynamic libraries are not implemented";
         SET_CURRENT_EXCEPTION_TYPE0_STR(tstate, PyExc_ImportError, error);
         return NULL;
 
@@ -752,7 +752,7 @@ static PyObject *callIntoExtensionModule(PyThreadState *tstate, char const *full
     }
 
     entrypoint_t entrypoint = (entrypoint_t)dlsym(handle, entry_function_name);
-#endif // __wasi__
+#endif // __EMSCRIPTEN__
 #endif
     assert(entrypoint);
 

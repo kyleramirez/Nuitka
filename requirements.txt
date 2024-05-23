@@ -1,5 +1,5 @@
 #     Copyright 2024, Kay Hayen, mailto:kay.hayen@gmail.com find license text at end of file
-
+pip==24.0
 # Folders to use for cache files.
 appdirs
 

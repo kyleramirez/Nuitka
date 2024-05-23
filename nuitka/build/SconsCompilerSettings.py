@@ -425,7 +425,7 @@ def decideConstantsBlobResourceMode(env, module_mode):
     elif True:
         # For WASI
         resource_mode = "code"
-        reason = "default for WASI"
+        reason = "default for Emscripten"
     elif isMacOS():
         resource_mode = "mac_section"
         reason = "default for macOS"
@@ -641,37 +641,21 @@ def setupCCompiler(env, lto_mode, pgo_mode, job_count, onefile_compile):
 
 
     if True:
-        # For WASI
-        target_flag = "--target=wasm32-wasi"
+        # For emscripten
+        # --no-entry
+        # target_flag = "--with-emscripten-target=node -sMAIN_MODULE"
+        target_flag = "--target=wasm32-unknown-emscripten"
         env.Append(CCFLAGS=[target_flag])
         env.Append(LINKFLAGS=[target_flag])
         # env.Append(CCFLAGS=["-D_NUITKA_EXPERIMENTAL_DEBUG_CONSTANTS=1"])
+        # env.Append(LINKFLAGS=["-ldl"]) # dlopen / dlsym
+        # env.Append(LINKFLAGS=["-lmpdec"])
+        # env.Append(LINKFLAGS=["-lexpat"])
+        env.Append(LINKFLAGS=["-L/Users/kyle/Sites/local/Nuitka/pywasm/lib/libffi.a -fPIC -pthread -lffi -lstdc++ -I/Users/kyle/Sites/local/Nuitka/pywasm/include"])
+        env.Append(CCFLAGS=["-O2"])
 
-        env.Append(CCFLAGS=["-D_WASI_EMULATED_MMAN"])
-        env.Append(LINKFLAGS=["-lwasi-emulated-mman"])
 
-        # getpid
-        env.Append(CCFLAGS=["-D_WASI_EMULATED_GETPID"])
-        env.Append(LINKFLAGS=["-lwasi-emulated-getpid"])
 
-        # signal
-        env.Append(CCFLAGS=["-D_WASI_EMULATED_SIGNAL"])
-        env.Append(LINKFLAGS=["-lwasi-emulated-signal"])
-
-        # process-clocks
-        env.Append(CCFLAGS=["-D_WASI_EMULATED_PROCESS_CLOCKS"])
-        env.Append(LINKFLAGS=["-lwasi-emulated-process-clocks"])
-
-        # dlopen / dlsym
-        env.Append(LINKFLAGS=["-ldl"])
-
-        # mpdec
-        # /Users/syrusakbary/Development/cpython-3.11/builddir/wasi/Modules/_decimal/libmpdec/
-        env.Append(LINKFLAGS=["-lmpdec"])
-
-        # expat
-        # /Users/syrusakbary/Development/cpython-3.11/builddir/wasi/Modules/expat/
-        env.Append(LINKFLAGS=["-lexpat"])
     # Support for macOS standalone to run on older OS versions.
     elif isMacOS():
         setEnvironmentVariable(env, "MACOSX_DEPLOYMENT_TARGET", env.macos_min_version)

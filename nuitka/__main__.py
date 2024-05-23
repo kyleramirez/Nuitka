@@ -148,27 +148,26 @@ def main():
     if Options.isShowMemory():
         MemoryUsage.showMemoryTrace()
 
-def py2wasm():
-    from nuitka.utils.wasi_sdk import try_get_sdk_path
+if __name__ == "__main__":
+    if "NUITKA_PACKAGE_HOME" in os.environ:
+        sys.path.insert(0, os.environ["NUITKA_PACKAGE_HOME"])
 
-    sdk_path = try_get_sdk_path()
+        import nuitka  # just to have it loaded from there, pylint: disable=unused-import
+
+        del sys.path[0]
+
     # WASI_SDK_DIR = os.environ.get("WASI_SDK_DIR")
     # if not WASI_SDK_DIR:
     #     print("Please set the WASI_SDK_DIR to continue")
     #     return -1
-    clang_path = "%s/bin/clang" % sdk_path
-    if not os.path.isfile(clang_path):
-        print("py2wasm: The SDK clang file doesn't exist: %s" % clang_path)
-        return -1
-    os.environ["CC"] = clang_path
-
+    os.environ["CC"] = "emcc"
     import argparse
 
     parser = argparse.ArgumentParser(description='py2wasm is a program to compile Python to WebAssembly', prog="py2wasm")
     parser.add_argument('filename', help='The python file to compile')
     parser.add_argument('-o', '--output', help='The output wasm')
     args = parser.parse_args(sys.argv[1:])
-
+    print(args)
     extra_args = []
 
     output_dir = os.path.join(os.path.dirname(__file__), "__py2wasm")
@@ -189,22 +188,11 @@ def py2wasm():
         "--standalone",
         "--static-libpython=yes",
         "--disable-ccache",
-        # "--onefile",
         "--lto=yes",
     ] + extra_args
 
     final_output_file = args.output or args.filename.replace(".py", ".wasm")
     os.environ["PY2WASM_OUTPUT"] = final_output_file
-
-    main()
-
-if __name__ == "__main__":
-    if "NUITKA_PACKAGE_HOME" in os.environ:
-        sys.path.insert(0, os.environ["NUITKA_PACKAGE_HOME"])
-
-        import nuitka  # just to have it loaded from there, pylint: disable=unused-import
-
-        del sys.path[0]
 
     main()
 
